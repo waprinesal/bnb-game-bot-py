@@ -1,0 +1,38 @@
+import random
+from aiogram import Bot, Dispatcher, types
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.utils import executor
+
+API_TOKEN = "ТВОЙ_ТОКЕН_ОТ_BOTFATHER"
+
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher(bot)
+
+# Кнопки
+keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+keyboard.add(KeyboardButton("Тропа 1"), KeyboardButton("Тропа 2"), KeyboardButton("Тропа 3"))
+
+@dp.message_handler(commands=['start'])
+async def start_game(message: types.Message):
+    await message.answer(
+        "Ты оказался в таинственном лесу. Перед тобой три тропы:\n"
+        "1. Светлая тропа\n2. Тропа с туманом\n3. Тропа с паутиной\n\n"
+        "Выбери путь:",
+        reply_markup=keyboard
+    )
+
+@dp.message_handler(lambda message: message.text.startswith("Тропа"))
+async def handle_choice(message: types.Message):
+    result = random.choice(["звезда", "ловушка", "ничего"])
+    
+    if result == "звезда":
+        response = "Ты нашёл звезду! +1 звезда!"
+    elif result == "ловушка":
+        response = "О нет, ты попал в ловушку! Игра окончена."
+    else:
+        response = "Ничего не произошло... попробуй ещё."
+
+    await message.answer(response)
+
+if __name__ == '__main__':
+    executor.start_polling(dp)
